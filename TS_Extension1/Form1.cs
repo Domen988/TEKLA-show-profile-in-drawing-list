@@ -177,7 +177,7 @@ namespace TS_Extension1
                         }
                         if (text1.Length + text2.Length + text3.Length >= 55)
                         {
-                            text2 = text2.Substring(0, 55 - text3.Length - text1.Length) + "...";
+                            text2 = text2.Substring(0, 55 - text3.Length - text1.Length) + "..."; //
                         }
 					}
 					text = text1 + text2;
