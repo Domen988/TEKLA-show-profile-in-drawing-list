@@ -7,7 +7,13 @@ using Tekla.Structures.Drawing;
 using Tekla.Structures.Model;
 namespace TS_Extension1
 {
-	public class Form1 : Form
+    public class Variables
+    {
+        public static string caption = "Show profile v1.1";
+        public static string date = "23.10.2015";
+    }
+
+    public class Form1 : Form
 	{
 		private IContainer components;
 		private Button AllDrawing;
@@ -84,7 +90,7 @@ namespace TS_Extension1
 			this.label2.Text = "------------------------------------------------------------\nModified by Domen Zagar/Skanding:\n- FL and PL profile prefix is moved \nto the end, \n - scale is displayed for GA drawings.";
 			base.AutoScaleDimensions = new SizeF(8f, 16f);
 			base.AutoScaleMode = AutoScaleMode.Font;
-			base.ClientSize = new System.Drawing.Size(267, 187);
+			base.ClientSize = new System.Drawing.Size(400, 100);
 			base.Controls.Add(this.label1);
 			base.Controls.Add(this.label2);
 			base.Controls.Add(this.CurrentNo);
@@ -94,7 +100,7 @@ namespace TS_Extension1
 			base.Controls.Add(this.AllDrawing);
 			base.Icon = (Icon)componentResourceManager.GetObject("$this.Icon");
 			base.Name = "Form1";
-			this.Text = "DK_Show_Profile_In_Drawing_list";
+            this.Text = Variables.caption + " / " + Variables.date;
 			base.TopMost = true;
 			base.Load += new EventHandler(this.Form1_Load);
 			base.ResumeLayout(false);
@@ -105,7 +111,7 @@ namespace TS_Extension1
 			this.InitializeComponent();
 			if (!this.My_model.GetConnectionStatus())
 			{
-				MessageBox.Show("Tekla 19.0 not started");
+				MessageBox.Show("Tekla not started");
 				Application.Exit();
 			}
 			Application.Exit();
@@ -153,7 +159,12 @@ namespace TS_Extension1
 				this.progressBar1.Value++;
 				this.CurrentNo.Text = num++.ToString() + '/' + DrawingList.GetSize().ToString();
 				this.CurrentNo.Refresh();
-				string text = "";
+
+                System.Double width = 0;
+                System.Double height = 0;
+                System.Double length = 0;
+
+                string text = "";
 				Tekla.Structures.Model.ModelObject modelObject = null;
 				if (DrawingList.Current is GADrawing)
 				{
@@ -185,29 +196,43 @@ namespace TS_Extension1
 					DrawingList.Current.Modify();
 					num4++;
 				}
+
 				if (DrawingList.Current is AssemblyDrawing)
 				{
 					AssemblyDrawing assemblyDrawing = DrawingList.Current as AssemblyDrawing;
 					Identifier assemblyIdentifier = assemblyDrawing.AssemblyIdentifier;
 					modelObject = this.My_model.SelectModelObject(assemblyIdentifier);
-					modelObject.GetReportProperty("MAINPART.PROFILE", ref text);
+                    modelObject.GetReportProperty("WIDTH", ref width);
+                    modelObject.GetReportProperty("HEIGHT", ref height);
+                    modelObject.GetReportProperty("LENGTH", ref length);
+                    modelObject.GetReportProperty("MAINPART.PROFILE", ref text);
 					if ((text.Substring(0, 2) == "PL" || text.Substring(0, 2) == "FL") && char.IsNumber(text, 2))
 					{
-						text = text.Substring(2, text.Length - 2) + " " + text.Substring(0, 2);
+						//text = text.Substring(2, text.Length - 2) + " " + text.Substring(0, 2);
+                        text = Math.Round(width).ToString() + "*" + Math.Round(height).ToString() + "*" + Math.Round(length).ToString() + " " + text.Substring(0, 2);
 					}
 					num2++;
 				}
-				if (DrawingList.Current is SinglePartDrawing)
+
+
+                if (DrawingList.Current is SinglePartDrawing)
 				{
 					SinglePartDrawing singlePartDrawing = DrawingList.Current as SinglePartDrawing;
 					Identifier partIdentifier = singlePartDrawing.PartIdentifier;
 					modelObject = this.My_model.SelectModelObject(partIdentifier);
-					modelObject.GetReportProperty("PROFILE", ref text);
-					if ((text.Substring(0, 2) == "PL" || text.Substring(0, 2) == "FL") && char.IsNumber(text, 2))
+                    modelObject.GetReportProperty("WIDTH", ref width);
+                    modelObject.GetReportProperty("HEIGHT", ref height);
+                    modelObject.GetReportProperty("LENGTH", ref length);
+                    modelObject.GetReportProperty("PROFILE", ref text);
+
+                    //MessageBox.Show("width = " + Math.Round(width).ToString() + "\nheight = " + Math.Round(height).ToString() + "\nlength = " + Math.Round(length).ToString() + "\nprofile string = " + text.ToString());
+
+                    if ((text.Substring(0, 2) == "PL" || text.Substring(0, 2) == "FL") && char.IsNumber(text, 2))
 					{
-						text = text.Substring(2, text.Length - 2) + " " + text.Substring(0, 2);
-					}
-					num3++;
+                        //text = text.Substring(2, text.Length - 2) + " " + text.Substring(0, 2);
+                        text = Math.Round(width).ToString() + "*" + Math.Round(height).ToString() + "*" + Math.Round(length).ToString() + " " + text.Substring(0, 2);
+                    }
+                    num3++;
 				}
 				if (modelObject != null)
 				{
