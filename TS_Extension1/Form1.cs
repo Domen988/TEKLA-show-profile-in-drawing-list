@@ -9,8 +9,9 @@ namespace TS_Extension1
 {
     public class Variables
     {
-        public static string caption = "Show profile v1.1";
-        public static string date = "23.10.2015";
+        public static string caption = "Show profile v1.2";
+        public static string date = "Tekla v21.0";
+        public static string title = Variables.caption + " / " + Variables.date;
     }
 
     public class Form1 : Form
@@ -100,7 +101,7 @@ namespace TS_Extension1
 			base.Controls.Add(this.AllDrawing);
 			base.Icon = (Icon)componentResourceManager.GetObject("$this.Icon");
 			base.Name = "Form1";
-            this.Text = Variables.caption + " / " + Variables.date;
+            this.Text = Variables.title;
 			base.TopMost = true;
 			base.Load += new EventHandler(this.Form1_Load);
 			base.ResumeLayout(false);
@@ -141,9 +142,9 @@ namespace TS_Extension1
 				{
 					this.AddProfileToDrawingListAtt(drawings);
 				}
-				catch
+				catch (Exception exc)
 				{
-					MessageBox.Show("Show main profile program failed.");
+					MessageBox.Show("Show main profile program failed." + "\n" + exc, Variables.title);
 				}
 			}
 		}
@@ -154,6 +155,7 @@ namespace TS_Extension1
 			int num2 = 0;
 			int num3 = 0;
 			int num4 = 0;
+            bool needsUpdating = false;
 			while (DrawingList.MoveNext())
 			{
 				this.progressBar1.Value++;
@@ -166,6 +168,14 @@ namespace TS_Extension1
 
                 string text = "";
 				Tekla.Structures.Model.ModelObject modelObject = null;
+
+                Drawing currentDrawing = DrawingList.Current;
+                if (currentDrawing.UpToDateStatus.ToString() != "DrawingIsUpToDate")
+                {
+                    needsUpdating = true;
+                    continue;
+                }
+
 				if (DrawingList.Current is GADrawing)
 				{
 					GADrawing gADrawing = DrawingList.Current as GADrawing;
@@ -200,7 +210,7 @@ namespace TS_Extension1
 				if (DrawingList.Current is AssemblyDrawing)
 				{
 					AssemblyDrawing assemblyDrawing = DrawingList.Current as AssemblyDrawing;
-					Identifier assemblyIdentifier = assemblyDrawing.AssemblyIdentifier;
+                    Identifier assemblyIdentifier = assemblyDrawing.AssemblyIdentifier;
 					modelObject = this.My_model.SelectModelObject(assemblyIdentifier);
                     modelObject.GetReportProperty("WIDTH", ref width);
                     modelObject.GetReportProperty("HEIGHT", ref height);
@@ -217,7 +227,7 @@ namespace TS_Extension1
 
                 if (DrawingList.Current is SinglePartDrawing)
 				{
-					SinglePartDrawing singlePartDrawing = DrawingList.Current as SinglePartDrawing;
+                    SinglePartDrawing singlePartDrawing = DrawingList.Current as SinglePartDrawing;
 					Identifier partIdentifier = singlePartDrawing.PartIdentifier;
 					modelObject = this.My_model.SelectModelObject(partIdentifier);
                     modelObject.GetReportProperty("WIDTH", ref width);
@@ -240,7 +250,13 @@ namespace TS_Extension1
 					DrawingList.Current.Modify();
 				}
 			}
-			MessageBox.Show(string.Concat(new object[]
+
+            if (needsUpdating == true)
+            {
+                MessageBox.Show("Some of the drawings are deleted or not up to date!\n\nProfiles were not updated fot that drawings.", Variables.title);
+            }
+
+            MessageBox.Show(string.Concat(new object[]
 			{
 				num3,
 				" Single-part profile drawing done! \n",
@@ -250,7 +266,7 @@ namespace TS_Extension1
 				" GA drawings scale done! \n",
 				DrawingList.GetSize() - (num3 + num2),
 				" Drawing profile are not done!"
-			}));
+            }), Variables.title);
 		}
 		private void Close_tool_Click(object sender, EventArgs e)
 		{
