@@ -9,7 +9,7 @@ namespace TS_Extension1
 {
     public class Variables
     {
-        public static string caption = "Show view scale for assemblies";
+        public static string caption = "Show profile v1.2";
         public static string date = "Tekla v21.0";
         public static string title = Variables.caption + " / " + Variables.date;
     }
@@ -82,16 +82,16 @@ namespace TS_Extension1
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(234, 17);
 			this.label1.TabIndex = 6;
-			this.label1.Text = "Show secong biggest and biggest view scale for:";
+			this.label1.Text = "Show main-part profile/scale for:";
 			this.label2.AutoSize = true;
 			this.label2.Location = new Point(8, 100);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(234, 17);
 			this.label2.TabIndex = 6;
-			this.label2.Text = "------------------------------------------------------------\nShows secong biggest and biggest view scale for assembly drawings.";
+			this.label2.Text = "------------------------------------------------------------\nModified by Domen Zagar/Skanding:\n- FL and PL profile prefix is moved \nto the end, \n - scale is displayed for GA drawings.";
 			base.AutoScaleDimensions = new SizeF(8f, 16f);
 			base.AutoScaleMode = AutoScaleMode.Font;
-			base.ClientSize = new System.Drawing.Size(500, 100);
+			base.ClientSize = new System.Drawing.Size(400, 100);
 			base.Controls.Add(this.label1);
 			base.Controls.Add(this.label2);
 			base.Controls.Add(this.CurrentNo);
@@ -176,7 +176,6 @@ namespace TS_Extension1
                     continue;
                 }
 
-                /*
 				if (DrawingList.Current is GADrawing)
 				{
 					GADrawing gADrawing = DrawingList.Current as GADrawing;
@@ -207,7 +206,7 @@ namespace TS_Extension1
 					DrawingList.Current.Modify();
 					num4++;
 				}
-                
+
 				if (DrawingList.Current is AssemblyDrawing)
 				{
 					AssemblyDrawing assemblyDrawing = DrawingList.Current as AssemblyDrawing;
@@ -224,58 +223,8 @@ namespace TS_Extension1
 					}
 					num2++;
 				}
-                */
 
-                if (DrawingList.Current is AssemblyDrawing)
-                {
-                    AssemblyDrawing assemblyDrawing = DrawingList.Current as AssemblyDrawing;
-                    DrawingObjectEnumerator views = assemblyDrawing.GetSheet().GetViews();
-                    string text1 = "Scale = 1: ";
-                    string text2 = "";
-                    double first = 0;
-                    double second = 0;
-                    while (views != null && views.MoveNext())
-                    {
-                        Tekla.Structures.Drawing.View view = views.Current as Tekla.Structures.Drawing.View;
-                        string name = string.Empty;
-                        string test = "LABEL";
-                        view.GetUserProperty(test, ref name);
 
-                        //MessageBox.Show(name);
-
-                        string text3 = view.Attributes.Scale.ToString() + ", ";
-
-                        if (first > view.Attributes.Scale)
-                        {
-                            if (second > view.Attributes.Scale)
-                            {
-
-                            }
-                            else
-                            {
-                                second = view.Attributes.Scale;
-                            }
-                        }
-                        else
-                        {
-                            second = first;
-                            first = view.Attributes.Scale;
-                            text2 = text3 + text2;
-                            first = view.Attributes.Scale;
-                        }
-                        if (text1.Length + text2.Length + text3.Length >= 55)
-                        {
-                            text2 = text2.Substring(0, 55 - text3.Length - text1.Length) + "..."; //
-                        }
-                    }
-                    text = text1 + text2;
-
-                    text = second.ToString() + "  " + first.ToString();
-                    DrawingList.Current.SetUserProperty("DR_MAINPARTPROFILE", text);
-                    DrawingList.Current.Modify();
-                    num4++;
-                }
-                /*
                 if (DrawingList.Current is SinglePartDrawing)
 				{
                     SinglePartDrawing singlePartDrawing = DrawingList.Current as SinglePartDrawing;
@@ -300,7 +249,6 @@ namespace TS_Extension1
 					DrawingList.Current.SetUserProperty("DR_MAINPARTPROFILE", text);
 					DrawingList.Current.Modify();
 				}
-                */
 			}
 
             if (needsUpdating == true)
